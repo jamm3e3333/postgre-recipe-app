@@ -1,1 +1,1 @@
-# postgre-recipe-app
+# postgre-recipes
