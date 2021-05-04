@@ -4,6 +4,8 @@ const cons = require('consolidate');
 const dust = require('dustjs-helpers');
 app = express();
 const { client } = require('./db/postgres.js');
+const { send } = require('process');
+const { dir } = require('console');
 
 
 const port = process.env.PORT;
@@ -31,13 +33,38 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
 app.get('/', async(req, res) => {
-    await client.connect();
-    const data = await client.query('select * from recipes');
-    console.log(data.rows);
-    res.render('index', {
-        recipes: data.rows
-    })
-    client.end();
+    try{
+        await client.connect();
+        const data = await client.query('select * from recipes');
+        console.log(data.rows);
+        res.render('index', {
+            recipes: data.rows
+        })
+        client.end();
+    }
+    catch(err){
+        res.status(400)
+            .send(err);
+    }
+})
+
+app.post('/add', async(req, res) => {
+    const {name, ingredients, directions } = req.body;
+    if(!name || !ingredients || !directions){
+        alert('You cannot leave the fields empty');
+        res.redirect('/');
+    }
+    try{
+        await client.connect();
+        await client.query('insert into recipes(name, ingredients, directions) values($1, $2, $3)',[name, ingredients, directions]);
+        
+        client.end();
+        res.redirect('/');
+    }
+    catch(err){
+        res.status(400)
+            .send(err);
+    }
 })
 
 //server
