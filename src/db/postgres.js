@@ -9,6 +9,11 @@ const config = {
 }
 
 const client = new Client(config);
+client.connect((err) => {
+    if(err){
+        console.log(err);
+    }
+});
 
 client.on("connect", () => {
     console.log("connected");
